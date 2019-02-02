@@ -7,6 +7,7 @@ var {Todo}  = require('./model/todo');
 var {User}  = require('./model/user');
 
 var app = express();
+var port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
@@ -79,7 +80,7 @@ app.get('/todos/:id', (req, res)  =>  {
 });
 
 
-app.listen(3000, (result)  =>  {
+app.listen(port, (result)  =>  {
     console.log('Connected to node server');
 })
 
