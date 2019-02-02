@@ -79,6 +79,39 @@ app.get('/todos/:id', (req, res)  =>  {
     }
 });
 
+app.delete('/todos/:id', (req, res) =>  {
+  var id = req.params.id;
+
+  if(id){
+    if(ObjectID.isValid(id)){
+        Todo.findByIdAndDelete(id).then((output)  =>  {
+          if(output){
+            res.status(200).send({
+              status: 200,
+              body: {
+                  deletedRecord: output
+              }
+            });
+          }else{
+            res.status(404).send({
+              'message':  'No records found with this ID'
+            });
+          }
+        }).catch((err)  =>  {
+          res.status(404);
+        });
+    }else{
+      res.status(404).send({
+        'message':  'Invalid Id'
+      });
+    }
+  }else{
+    res.status(400).send({
+      'messsage'  : 'Please provide an ID'
+    });
+  }
+});
+
 
 app.listen(port, (result)  =>  {
     console.log('Connected to node server');
