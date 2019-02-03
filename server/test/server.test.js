@@ -72,8 +72,8 @@ describe('GET /todos', () =>  {
     })
 });
 
-var id = '5c529f724197e67da81287bd';
 describe('GET /todos/id', ()  =>  {
+  var id = '5c529f724197e67da81287bd';
   describe('#validID', () =>  {
     it('should return data', (done) =>  {
       request(app)
@@ -105,4 +105,40 @@ describe('GET /todos/id', ()  =>  {
       .end(done);
     })
   });
+});
+
+
+describe('DELETE /todos/:id', ()  =>  {
+    var deleteId = '5c5545c3a146fb7c80c86725';
+    describe('#validID',  ()  =>  {
+      it('should delete the todo with id',  (done)  =>  {
+        request(app)
+        .delete(`/todos/${deleteId}`)
+        .expect(200)
+        .expect((output)  =>  {
+          expect(output).toIncludeKey('text');
+        })
+        .end(done);
+      });
+    });
+
+    var deleteIdNoData = '5c5545c3a146fb7c80c86725';
+    describe('#noData', ()  =>  {
+      it('should 404 if id not found',  (done)  =>  {
+        request(app)
+        .delete(`/todos/${deleteIdNoData}`)
+        .expect(404)
+        .end(done);
+      });
+    });
+
+    var deleteIdInvalid = '338';
+    describe('#invalidID', () =>  {
+      it('should 404 if invalid ID',  (done)  =>  {
+        request(app)
+        .delete(`/todos/${deleteIdInvalid}`)
+        .expect(404)
+        .end(done);
+      });
+    });
 });
