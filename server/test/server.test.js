@@ -73,7 +73,7 @@ describe('GET /todos', () =>  {
 });
 
 describe('GET /todos/id', ()  =>  {
-  var id = '5c529f724197e67da81287bd';
+  var id = '5c555903f70e1f771c969234';
   describe('#validID', () =>  {
     it('should return data', (done) =>  {
       request(app)
@@ -109,7 +109,7 @@ describe('GET /todos/id', ()  =>  {
 
 
 describe('DELETE /todos/:id', ()  =>  {
-    var deleteId = '5c5545c3a146fb7c80c86725';
+    var deleteId = '5c555903f70e1f771c969234';
     describe('#validID',  ()  =>  {
       it('should delete the todo with id',  (done)  =>  {
         request(app)
@@ -141,4 +141,25 @@ describe('DELETE /todos/:id', ()  =>  {
         .end(done);
       });
     });
+});
+
+describe('PUT /todos/:id', () =>  {
+  var updateID = '5c55598f2fff0522ec4d4185';
+  var body = {
+    'text': 'This is updated record',
+    'completed': true
+  }
+  describe('#validID', () =>{
+    it('should update the record successfully', (done)  =>  {
+        request(app)
+        .put(`/todos/${updateID}`)
+        .send({body})
+        .expect(200)
+        .expect((output)  =>  {
+          expect(output).toIncludeKey('text');
+        })
+        .end(done);
+    });
+  });
+  
 });
