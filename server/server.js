@@ -7,11 +7,25 @@ var config = require('./../config/config');
 var {mongoose}  = require('./db/mongoose');
 var {Todo}  = require('./model/todo');
 var {User}  = require('./model/user');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 var port = process.env.PORT;
 
 app.use(bodyParser.json());
+
+app.post('/user', (req, res)  =>  {
+  var body = _.pick(req.body, ['email','password'])
+   var newUser = new User(body);
+
+   newUser.save().then(() =>  {
+     return newUser.generateAuthToken();
+   }).then((token)  =>  {
+     res.header('x-Auth', token).send(newUser);
+   }).catch((err) =>  {
+     res.send(err);
+   })
+});
 
 app.get('/', (req, res) =>  {
     res.send({
@@ -22,7 +36,7 @@ app.get('/', (req, res) =>  {
     });
 });
 
-app.post('/todos', (req, res) =>  {
+app.post('/todos', authenticate, (req, res) =>  {
     var todo = new Todo({
       text: req.body.text
     });
@@ -36,7 +50,7 @@ app.post('/todos', (req, res) =>  {
     });
 });
 
-app.get('/todos', (req, res)  =>  {
+app.get('/todos', authenticate, (req, res)  =>  {
     Todo.find().then((alltodos) =>  {
         res.send({
           status: 200,
@@ -50,7 +64,7 @@ app.get('/todos', (req, res)  =>  {
     });
 })
 
-app.get('/todos/:id', (req, res)  =>  {
+app.get('/todos/:id', authenticate, (req, res)  =>  {
     var id = req.params.id;
 
     if(id){
@@ -81,7 +95,7 @@ app.get('/todos/:id', (req, res)  =>  {
     }
 });
 
-app.delete('/todos/:id', (req, res) =>  {
+app.delete('/todos/:id', authenticate, (req, res) =>  {
   var id = req.params.id;
 
   if(id){
@@ -114,7 +128,7 @@ app.delete('/todos/:id', (req, res) =>  {
   }
 });
 
-app.put('/todos/:id', (req, res)  =>  {
+app.put('/todos/:id', authenticate, (req, res)  =>  {
     var id = req.params.id;
 
     var body = _.pick(req.body, ['text','completed']);
@@ -150,6 +164,10 @@ app.put('/todos/:id', (req, res)  =>  {
     }
 });
 
+
+app.get('/users/me', authenticate, (req, res)  =>  {
+    res.send(req.user);
+});
 
 app.listen(port, (result)  =>  {
     console.log('Connected to node server');
