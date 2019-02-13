@@ -4,6 +4,10 @@ const {ObjectID}  = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo}  = require('./../model/todo');
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed.test');
+
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 //Executes before executing describe block
 // beforeEach((done) =>  {
@@ -14,7 +18,7 @@ const {Todo}  = require('./../model/todo');
 
 describe('POST /todos', ()  =>  {
     it('should created a new todo', (done)  =>  {
-        var text = 'This is my test note';
+       var text = 'This is my test note';
         request(app)
           .post('/todos')
           .send({text})
@@ -27,13 +31,15 @@ describe('POST /todos', ()  =>  {
             return done(err);
           }
 
-          Todo.find({text}).then((todos)  =>  {
+          done();
+
+        /*  Todo.find(text).then((output)  =>  {
             // expect(todos.length).toBe(1);
-            expect(todos[0].text).toBe(text);
+            expect(output.text).toBe(text);
             done();
           }).catch((err)  =>  {
               done(err);
-          });
+          });*/
 
         });
     });
@@ -73,7 +79,7 @@ describe('GET /todos', () =>  {
 });
 
 describe('GET /todos/id', ()  =>  {
-  var id = '5c555903f70e1f771c969234';
+  var id = todos[0]._id;
   describe('#validID', () =>  {
     it('should return data', (done) =>  {
       request(app)
@@ -109,7 +115,7 @@ describe('GET /todos/id', ()  =>  {
 
 
 describe('DELETE /todos/:id', ()  =>  {
-    var deleteId = '5c555903f70e1f771c969234';
+    var deleteId = todos[1]._id;
     describe('#validID',  ()  =>  {
       it('should delete the todo with id',  (done)  =>  {
         request(app)
@@ -144,7 +150,7 @@ describe('DELETE /todos/:id', ()  =>  {
 });
 
 describe('PUT /todos/:id', () =>  {
-  var updateID = '5c55598f2fff0522ec4d4185';
+  var updateID = todos[0]._id;
   var body = {
     'text': 'This is updated record',
     'completed': true
@@ -161,5 +167,5 @@ describe('PUT /todos/:id', () =>  {
         .end(done);
     });
   });
-  
+
 });

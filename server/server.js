@@ -169,6 +169,24 @@ app.get('/users/me', authenticate, (req, res)  =>  {
     res.send(req.user);
 });
 
+app.post('/user/login', (req, res)  =>  {
+    var data = _.pick(req.body, ['email','password']);
+
+    User.findByCredentials(data.email, data.password).then((userData) =>  {
+        return userData.generateAuthToken().then((token)  =>  {
+          res.header('x-auth', token).send({
+            "status": "success",
+            "tokens":{
+              "type": "auth",
+              "token": token
+            }
+          });
+        });
+    }).catch((err)  =>  {
+      res.send({error: err});
+    });
+});
+
 app.listen(port, (result)  =>  {
     console.log('Connected to node server');
 })
