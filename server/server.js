@@ -38,7 +38,8 @@ app.get('/', (req, res) =>  {
 
 app.post('/todos', authenticate, (req, res) =>  {
     var todo = new Todo({
-      text: req.body.text
+      text: req.body.text,
+      _creator: req.user._id
     });
 
     todo.save().then((result) =>  {
@@ -51,7 +52,9 @@ app.post('/todos', authenticate, (req, res) =>  {
 });
 
 app.get('/todos', authenticate, (req, res)  =>  {
-    Todo.find().then((alltodos) =>  {
+    Todo.find({
+      _creator: req.user._id
+    }).then((alltodos) =>  {
         res.send({
           status: 200,
           count: alltodos.length,
@@ -69,7 +72,10 @@ app.get('/todos/:id', authenticate, (req, res)  =>  {
 
     if(id){
       if(ObjectID.isValid(id)){
-        Todo.findById(id).then((output) =>  {
+        Todo.findOne({
+          _id: id,
+          _creator: req.user._id
+        }).then((output) =>  {
           if(output){
             res.status(200).send({
               status: 200,
@@ -100,7 +106,10 @@ app.delete('/todos/:id', authenticate, (req, res) =>  {
 
   if(id){
     if(ObjectID.isValid(id)){
-        Todo.findByIdAndDelete(id).then((output)  =>  {
+        Todo.findOneAndDelete({
+          _id: id,
+          _creator: req.user._id
+        }).then((output)  =>  {
           if(output){
             res.status(200).send({
               status: 200,
@@ -142,7 +151,10 @@ app.put('/todos/:id', authenticate, (req, res)  =>  {
         body.completedAt = null;
       }
 
-      Todo.findByIdAndUpdate(id, {$set:body}, {new: true}).then((result)  =>  {
+      Todo.findOneAndUpdate({
+        _id: id,
+        _creator: req.user._id
+      }, {$set:body}, {new: true}).then((result)  =>  {
           if(result){
             res.status(200).send({
               'message':  'Records Updated',
@@ -185,6 +197,18 @@ app.post('/user/login', (req, res)  =>  {
     }).catch((err)  =>  {
       res.send({error: err});
     });
+});
+
+app.delete('/user/me/token', authenticate, (req, res) =>  {
+    req.user.removeToken(req.token).then(() =>  {
+      res.status(200).send({
+        "status": "Logged Out Successfully"
+      });
+    }).catch((err)  =>  {
+      res.status(400).send({
+        "error": err
+      })
+    })
 });
 
 app.listen(port, (result)  =>  {
